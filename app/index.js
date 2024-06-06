@@ -5,8 +5,9 @@ import { Link } from 'expo-router';
 export default function App() {
     return (
         <View className="flex-1 items-center justify-center bg-white">
-            <Text>Open up App.js to start working on your app!</Text>
+            <Text>BiteBond</Text>
             <StatusBar style="auto" />
+            <Link href="/home" style={{ color: 'blue' }}>Home</Link>
         </View>
     );
 }
