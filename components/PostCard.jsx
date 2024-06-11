@@ -1,8 +1,9 @@
 import { View, Text, Image, Touchable, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { icons } from '../constants'
+import { ResizeMode, Video } from 'expo-av';
 
-const PostCard = ({ post: { title, thumbnail, video, actor: { username, avatar } } }) => {
+const PostCard = ({ post: { title, thumbnail, post, actor: { username, avatar } } }) => {
     const [play, setPlay] = useState(false);
 
     return (
@@ -30,7 +31,18 @@ const PostCard = ({ post: { title, thumbnail, video, actor: { username, avatar }
             </View>
 
             {play ? (
-                <Text className="text-white">Playing</Text>
+                <Video
+                    source={{ uri: post }}
+                    className="w-full h-60 rounded-xl mt-3 rounded-[35px] mt-3"
+                    resizeMode={ResizeMode.CONTAIN}
+                    useNativeControls
+                    shouldPlay
+                    onPlaybackStatusUpdate={(status) => {
+                        if (status.didJustFinish) {
+                            setPlay(false);
+                        }
+                    }}
+                />
             ) : (
                 <TouchableOpacity
                     activeOpacity={0.7}
