@@ -9,8 +9,11 @@ import EmptyState from '../../components/EmptyState'
 import { getAllPosts, getLatestPosts } from '../../lib/appwrite'
 import useAppwrite from '../../lib/useAppwrite'
 import PostCard from '../../components/PostCard'
+import { useGlobalContext } from '../../context/GlobalProvider'
 
 const Home = () => {
+    const { user, setUser, setIsLoggedIn } = useGlobalContext();
+
     const { data: posts, refetch } = useAppwrite(getAllPosts);
 
     const { data: latestPosts } = useAppwrite(getLatestPosts);
@@ -41,7 +44,7 @@ const Home = () => {
                                     Hi,
                                 </Text>
                                 <Text className="text-2xl font-psemibold text-white">
-                                    User
+                                    {user?.username}
                                 </Text>
                             </View>
 
