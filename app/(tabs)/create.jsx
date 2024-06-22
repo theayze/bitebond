@@ -73,7 +73,7 @@ const Create = () => {
         <SafeAreaView className="bg-primary h-full">
             <ScrollView className="px-4 my-6">
                 <Text className="text-2xl font-psemibold text-white">Upload Photo/Video</Text>
-                <FormField
+                {/* <FormField
                     title="Video Title"
                     value={form.title}
                     placeholder="Enter video title"
@@ -140,7 +140,7 @@ const Create = () => {
                     handlePress={submit}
                     containerStyles="mt-7"
                     isLoading={uploading}
-                />
+                /> */}
 
             </ScrollView>
         </SafeAreaView >
