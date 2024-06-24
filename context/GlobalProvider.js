@@ -7,24 +7,24 @@ export const useGlobalContext = () => useContext(GlobalContext);
 const GlobalProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState(null);
-    const [isLoading, setisLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         getCurrentUser()
             .then((res) => {
                 if (res) {
                     setIsLoggedIn(true);
-                    setUser(res)
+                    setUser(res);
                 } else {
                     setIsLoggedIn(false);
-                    setUser(null)
+                    setUser(null);
                 }
             })
             .catch((error) => {
-                console.log(error)
+                console.log('Error fetching current user:', error);
             })
             .finally(() => {
-                setisLoading(false)
+                setIsLoading(false);
             });
     }, []);
 
@@ -40,7 +40,7 @@ const GlobalProvider = ({ children }) => {
         >
             {children}
         </GlobalContext.Provider>
-    )
+    );
 }
 
 export default GlobalProvider;

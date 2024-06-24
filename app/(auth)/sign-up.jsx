@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, Alert } from 'react-native';
+import { View, Text, ScrollView, Image, Alert, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
@@ -14,33 +14,32 @@ const SignUp = () => {
     const [form, setForm] = useState({
         username: '',
         email: '',
-        password: ''
+        password: '',
+        role: 'user' // Default role is 'user'
     });
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const submit = async () => {
-        if (!form.username === "" || !form.email === "" || !form.password === "") {
-            Alert.alert('Error', 'Please fill in all fields')
+        if (!form.username || !form.email || !form.password) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
         }
 
         setIsSubmitting(true);
         try {
-            const result = await createUser(form.email, form.password, form.username)
+            const result = await createUser(form.email, form.password, form.username, form.role);
 
-            // set it to global state...
+            // Set it to global state...
             setUser(result);
             setIsLoggedIn(true);
 
-
-            router.replace('/home')
+            router.replace('/home');
         } catch (error) {
-            Alert.alert('Error', error.message)
+            Alert.alert('Error', error.message);
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
-
-        createUser();
-    }
+    };
 
     return (
         <SafeAreaView className="bg-primary h-full">
@@ -69,7 +68,23 @@ const SignUp = () => {
                         value={form.password}
                         handleChangeText={(e) => setForm({ ...form, password: e })}
                         otherStyles="mt-7"
+                        secureTextEntry
                     />
+
+                    <View className="mt-7 flex-row justify-between">
+                        <TouchableOpacity
+                            onPress={() => setForm({ ...form, role: 'user' })}
+                            className={`p-4 flex-1 mr-2 rounded-lg ${form.role === 'user' ? 'bg-secondary' : 'bg-white/20'}`}
+                        >
+                            <Text className={`text-center text-lg ${form.role === 'user' ? 'text-white' : 'text-gray-200'}`}>User</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => setForm({ ...form, role: 'business' })}
+                            className={`p-4 flex-1 ml-2 rounded-lg ${form.role === 'business' ? 'bg-secondary' : 'bg-white/20'}`}
+                        >
+                            <Text className={`text-center text-lg ${form.role === 'business' ? 'text-white' : 'text-gray-200'}`}>Business</Text>
+                        </TouchableOpacity>
+                    </View>
 
                     <CustomButton
                         title="Sign Up"
@@ -87,7 +102,7 @@ const SignUp = () => {
                 </View>
             </ScrollView>
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default SignUp
+export default SignUp;
