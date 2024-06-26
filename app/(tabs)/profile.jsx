@@ -10,10 +10,12 @@ import { useGlobalContext } from '../../context/GlobalProvider';
 import { icons } from '../../constants';
 import InfoBox from '../../components/InfoBox';
 import TabBar from '../../components/TabBar';
+import Review from '../../components/Review';
 
 const Profile = () => {
     const { user, setUser, setIsLoggedIn } = useGlobalContext();
     const [posts, setPosts] = useState([]);
+    const [reviews, setReviews] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedTab, setSelectedTab] = useState('posts');
 
@@ -63,12 +65,7 @@ const Profile = () => {
         if (selectedTab === 'posts') {
             return renderPosts();
         } else if (selectedTab === 'reviews') {
-            return (
-                <View className="flex-1 justify-center items-center">
-                    <Text style={{ color: 'white', textAlign: 'center', marginTop: 20 }}>Reviews will be displayed here</Text>
-                    {/* Add your code to display reviews here */}
-                </View>
-            );
+            return <Review reviews={reviews} />;
         }
     };
 

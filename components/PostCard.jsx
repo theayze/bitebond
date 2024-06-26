@@ -1,26 +1,32 @@
 import { useState } from "react";
 import { ResizeMode, Video } from "expo-av";
 import { View, Text, TouchableOpacity, Image } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 
 import { icons } from "../constants";
 
 const PostCard = ({ post }) => {
     const [play, setPlay] = useState(false);
+    const navigation = useNavigation();
 
     const { title, actor, thumbnail, post: video } = post;
     const isVideo = !!video;
+
+    const handleProfilePress = () => {
+        navigation.navigate('profileView/UserProfile', { userId: actor.$id });
+    };
 
     return (
         <View className="flex flex-col items-center px-4 mb-14">
             <View className="flex flex-row gap-3 items-start">
                 <View className="flex justify-center items-center flex-row flex-1">
-                    <View className="w-[46px] h-[46px] rounded-lg border border-secondary flex justify-center items-center p-0.5">
+                    <TouchableOpacity onPress={handleProfilePress} className="w-[46px] h-[46px] rounded-lg border border-secondary flex justify-center items-center p-0.5">
                         <Image
                             source={{ uri: actor?.avatar || 'default-avatar-url' }}
                             className="w-full h-full rounded-lg"
                             resizeMode="cover"
                         />
-                    </View>
+                    </TouchableOpacity>
 
                     <View className="flex justify-center flex-1 ml-3 gap-y-1">
                         <Text
