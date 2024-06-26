@@ -39,6 +39,14 @@ const Browse = () => {
                 ListHeaderComponent={() => (
                     <View className="my-6 px-4 space-y-6">
                         <SearchInput />
+
+                        <View className="w-full flex-1 pt-5 pb-8">
+                            <Text className="text-white text-lg font-pregular mb-3">
+                                Trending
+                            </Text>
+
+                            <Trending posts={latestPosts ?? []} />
+                        </View>
                     </View>
                 )}
                 ListEmptyComponent={() => (
