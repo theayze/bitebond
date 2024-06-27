@@ -1,16 +1,16 @@
-import { View, SectionList, TouchableOpacity, Image, Text, FlatList } from 'react-native';
+import { View, SectionList, TouchableOpacity, Image, Text, FlatList, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import EmptyState from '../../components/EmptyState';
-import { getUserPosts, signOut } from '../../lib/appwrite';
+import { getUserPosts, signOut, getBusinessReviews } from '../../lib/appwrite'; // Ensure to import getBusinessReviews
 import PostCard from '../../components/PostCard';
+import ReviewCard from '../../components/ReviewCard'; // Import the ReviewCard component
 import { router } from 'expo-router';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import { icons } from '../../constants';
 import InfoBox from '../../components/InfoBox';
 import TabBar from '../../components/TabBar';
-import Review from '../../components/Review';
 
 const Profile = () => {
     const { user, setUser, setIsLoggedIn } = useGlobalContext();
@@ -20,20 +20,24 @@ const Profile = () => {
     const [selectedTab, setSelectedTab] = useState('posts');
 
     useEffect(() => {
-        const fetchPosts = async () => {
+        const fetchProfileData = async () => {
             try {
                 const userPosts = await getUserPosts(user.$id);
-                console.log('Fetched posts:', userPosts); // Debug log
                 setPosts(userPosts);
+
+                if (user.role === 'business') {
+                    const businessReviews = await getBusinessReviews(user.$id);
+                    setReviews(businessReviews);
+                }
             } catch (error) {
-                console.error('Error fetching posts:', error);
+                console.error('Error fetching profile data:', error);
             } finally {
                 setIsLoading(false);
             }
         };
 
         if (user?.$id) {
-            fetchPosts();
+            fetchProfileData();
         }
     }, [user]);
 
@@ -61,18 +65,34 @@ const Profile = () => {
         />
     );
 
+    const renderReviews = () => (
+        <FlatList
+            data={reviews}
+            keyExtractor={(item) => item.$id}
+            renderItem={({ item }) => (
+                <ReviewCard review={item} />
+            )}
+            ListEmptyComponent={() => (
+                <EmptyState
+                    title="No Reviews Found"
+                    subtitle="No reviews found for this business"
+                />
+            )}
+        />
+    );
+
     const renderContent = () => {
         if (selectedTab === 'posts') {
             return renderPosts();
         } else if (selectedTab === 'reviews') {
-            return <Review reviews={reviews} />;
+            return renderReviews();
         }
     };
 
     if (isLoading) {
         return (
             <SafeAreaView className="bg-primary h-full justify-center items-center">
-                <Text style={{ color: 'white' }}>Loading...</Text>
+                <ActivityIndicator size="large" color="#FFFFFF" />
             </SafeAreaView>
         );
     }

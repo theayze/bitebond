@@ -1,13 +1,12 @@
-// app/profileView/UserProfile.jsx
-
-import { View, FlatList, TouchableOpacity, Image, Text, SectionList } from 'react-native';
+import { View, FlatList, TouchableOpacity, Image, Text, SectionList, ActivityIndicator, RefreshControl } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import EmptyState from '../../components/EmptyState';
 import { getUserPosts, getUserProfile, signOut, getBusinessReviews } from '../../lib/appwrite';
+import ReviewForm from '../review/ReviewForm';
 import PostCard from '../../components/PostCard';
-import Review from '../../components/Review';
+import ReviewCard from '../../components/ReviewCard'; // Import the ReviewCard component
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import { icons } from '../../constants';
@@ -25,30 +24,42 @@ const UserProfile = () => {
     const [reviews, setReviews] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedTab, setSelectedTab] = useState('posts');
+    const [refreshing, setRefreshing] = useState(false);
+
+    const fetchUserProfile = async () => {
+        try {
+            const userProfile = await getUserProfile(userId);
+            setUserProfile(userProfile);
+
+            const userPosts = await getUserPosts(userId);
+            setPosts(userPosts);
+
+            if (userProfile.role === 'business') {
+                const businessReviews = await getBusinessReviews(userId);
+                setReviews(businessReviews);
+            }
+        } catch (error) {
+            console.error('Error fetching profile data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const refetch = async () => {
+        setIsLoading(true);
+        await fetchUserProfile();
+        setIsLoading(false);
+    };
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await refetch();
+        setRefreshing(false);
+    };
 
     useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                const userProfile = await getUserProfile(userId);
-                setUserProfile(userProfile);
-
-                const userPosts = await getUserPosts(userId);
-                setPosts(userPosts);
-
-                if (userProfile.role === 'business') {
-                    const businessReviews = await getBusinessReviews(userId);
-                    setReviews(businessReviews);
-                }
-            } catch (error) {
-                console.error('Error fetching profile data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         fetchUserProfile();
     }, [userId]);
-
 
     const renderPosts = () => (
         <FlatList
@@ -66,25 +77,48 @@ const UserProfile = () => {
         />
     );
 
+    const renderReviews = () => (
+        <View className="flex-1">
+            <TouchableOpacity
+                onPress={() => navigation.navigate('review/ReviewForm', { businessId: userId })}
+                className="bg-secondary p-4 rounded-lg m-4"
+            >
+                <Text className="text-white text-center">Place a Review</Text>
+            </TouchableOpacity>
+            <FlatList
+                data={reviews}
+                keyExtractor={(item) => item.$id}
+                renderItem={({ item }) => (
+                    <ReviewCard review={item} />
+                )}
+                ListEmptyComponent={() => (
+                    <EmptyState
+                        title="No Reviews Found"
+                        subtitle="No reviews found for this business"
+                    />
+                )}
+            />
+        </View>
+    );
+
     const renderContent = () => {
         if (selectedTab === 'posts') {
             return renderPosts();
         } else if (selectedTab === 'reviews') {
-            return <Review reviews={reviews} />;
+            return renderReviews();
         }
     };
 
     if (isLoading) {
         return (
             <SafeAreaView className="bg-primary h-full justify-center items-center">
-                <Text style={{ color: 'white' }}>Loading...</Text>
+                <ActivityIndicator size="large" color="#FFFFFF" />
             </SafeAreaView>
         );
     }
 
     const renderHeader = () => (
         <View className="w-full justify-center items-center mt-6 mb-12 px-4">
-
             <View className="w-full flex-row justify-start mb-10">
                 <TouchableOpacity onPress={() => navigation.goBack()} className="w-6 h-6">
                     <Image source={icons.leftArrow} resizeMode='contain' className="w-full h-full" />
@@ -141,12 +175,10 @@ const UserProfile = () => {
                 }}
                 ListEmptyComponent={() => (
                     user?.role === 'business' ? null : (
-                        <EmptyState
-                            title="No Posts Found"
-                            subtitle="No results found for your search query"
-                        />
+                        <Text>No reviews found..</Text>
                     )
                 )}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             />
         </SafeAreaView>
     );
