@@ -125,9 +125,9 @@ const Create = () => {
                 {selectedTab === 'image' && (
                     <>
                         <FormField
-                            title="Video Title"
+                            title="Title/Description"
                             value={form.title}
-                            placeholder="Enter video title"
+                            placeholder="Enter title/description"
                             handleChangeText={(e) => setForm({ ...form, title: e })}
                             otherStyles="mt-10"
                         />

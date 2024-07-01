@@ -24,7 +24,7 @@ export default function App() {
                     />
 
                     <View className="relative mt-5">
-                        <Text className="Text-3xl text-white font-bold text-center">Testing</Text>
+                        <Text className="Text-3xl text-white font-bold text-center">Welcome to BiteBond!</Text>
                     </View>
 
                     <CustomButton
